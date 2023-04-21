@@ -1,0 +1,6 @@
+[submodule "Two-leader-backend"]
+	path = Two-leader-backend
+	url = https://github.com/Two-Leader/Two-leader-backend.git
+[submodule "Two-Leader-frontend"]
+	path = Two-Leader-frontend
+	url = https://github.com/Two-Leader/Two-Leader-frontend.git
