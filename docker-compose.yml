@@ -1,7 +1,7 @@
 version: "3"
 services:
   mysql:
-    container_name: db-mysql
+    container_name: tl-mysql
     image: mysql/mysql-server:8.0
     tty: true
     environment:
@@ -21,7 +21,7 @@ services:
       - "3306"
 
   database-adminer:
-    container_name: db-adminer
+    container_name: tl-db-adminer
     image: adminer:latest
     ports:
       - "18080:8080"
@@ -31,15 +31,15 @@ services:
       - ADMINER_PLUGINS=tables-filter tinymce
 
   backend:
-    container_name: backend-springboot
-    build: ./backend/
+    container_name: tl-backend
+    build: ./Two-leader-backend/
     restart: always
     ports:
       - "8080:8080"
 #    depends_on:
 #      - db-mysql
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://db-mysql:3306/twoLeader
+      SPRING_DATASOURCE_URL: jdbc:mysql://tl-mysql:3306/twoLeader
       SPRING_DATASOURCE_USERNAME: ${MYSQL_USER}
       SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
