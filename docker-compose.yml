@@ -1,5 +1,18 @@
 version: "3"
 services:
+  mongo-db:
+    container_name: tl-mongo
+    image: mongo
+    restart: always
+    volumes:
+      - mongo-data:/data
+    ports:
+    - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+      MONGO_INITDB_DATABASE: ${MONGO_INITDB_DATABASE}
+
   mysql:
     container_name: tl-mysql
     image: mysql/mysql-server:8.0
@@ -17,8 +30,6 @@ services:
       - '--collation-server=utf8mb4_unicode_ci'
     ports:
       - '3306:3306'
-    expose:
-      - "3306"
 
   database-adminer:
     container_name: tl-db-adminer
@@ -36,8 +47,6 @@ services:
     restart: always
     ports:
       - "8080:8080"
-#    depends_on:
-#      - db-mysql
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://tl-mysql:3306/twoLeader
       SPRING_DATASOURCE_USERNAME: ${MYSQL_USER}
@@ -54,5 +63,26 @@ services:
   #     - ./frontend/:/frontend
   #     - ./frontend/node_modules/:/frontend/node_modules
 
+  zookeeper:
+    image: wurstmeister/zookeeper
+    container_name: tl-zookeeper  
+    ports:
+      - "2181:2181"
+
+  kafka:
+    image: wurstmeister/kafka
+    container_name: tl-kafka
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_ADVERTISED_HOST_NAME: 127.0.0.1      
+      KAFKA_CREATE_TOPICS: "Topic:1:1"
+      KAFKA_ZOOKEEPER_CONNECT: tl-zookeeper:2181
+    volumes:
+      - /var/run/docker.sock
+    depends_on:
+      - zookeeper
+
 volumes:
   mysql-data:
+  mongo-data:
