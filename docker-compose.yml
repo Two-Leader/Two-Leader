@@ -64,24 +64,53 @@ services:
   #     - ./frontend/node_modules/:/frontend/node_modules
 
   zookeeper:
-    image: wurstmeister/zookeeper
-    container_name: tl-zookeeper  
-    ports:
-      - "2181:2181"
-
-  kafka:
-    image: wurstmeister/kafka
-    container_name: tl-kafka
-    ports:
-      - "9092:9092"
+    image: confluentinc/cp-zookeeper
+    container_name: tl-zookeeper
     environment:
-      KAFKA_ADVERTISED_HOST_NAME: 127.0.0.1      
-      KAFKA_CREATE_TOPICS: "Topic:1:1"
-      KAFKA_ZOOKEEPER_CONNECT: tl-zookeeper:2181
-    volumes:
-      - /var/run/docker.sock
+      ZOOKEEPER_CLIENT_PORT: 2181
+  kafka1:
+    image: confluentinc/cp-kafka
+    container_name: tl-kafka1
+    ports:
+      - "8097:8097"
     depends_on:
       - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: tl-zookeeper:2181
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: EXTERNAL:PLAINTEXT,INTERNAL:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: EXTERNAL://localhost:8097,INTERNAL://kafka1:9092
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+    restart: always
+
+  kafka2:
+    image: confluentinc/cp-kafka
+    container_name: tl-kafka2
+    ports:
+      - "8098:8098"
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 2
+      KAFKA_ZOOKEEPER_CONNECT: tl-zookeeper:2181
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: EXTERNAL:PLAINTEXT,INTERNAL:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: EXTERNAL://localhost:8098,INTERNAL://kafka2:9092
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+    restart: always
+  kafka3:
+    image: confluentinc/cp-kafka
+    container_name: tl-kafka3
+    ports:
+      - "8099:8099"
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 3
+      KAFKA_ZOOKEEPER_CONNECT: tl-zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: EXTERNAL://localhost:8099,INTERNAL://kafka3:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: EXTERNAL:PLAINTEXT,INTERNAL:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+    restart: always
 
 volumes:
   mysql-data:
